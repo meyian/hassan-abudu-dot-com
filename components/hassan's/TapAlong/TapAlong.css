@@ -1,0 +1,80 @@
+/* see pages/_app.js for where this is added */
+
+.beat-count {
+  height: inherit;
+  width: inherit;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 1s ease-in-out, opacity 1s;
+}
+
+.prev {
+  right: var(--tapalong-box-letter-spacing-pos);
+}
+
+.next {
+  left: var(--tapalong-box-letter-spacing-pos);
+}
+
+.shift-left {
+  transform: translateX(var(--tapalong-box-letter-spacing-neg));
+}
+
+.shift-left-twice {
+  transform: translateX(var(--tapalong-box-letter-spacing-neg-twice));
+}
+
+.fade-in {
+  animation: fadeIn linear 1s;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@-moz-keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@-o-keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@-ms-keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.fade-out {
+  opacity: 0;
+}
