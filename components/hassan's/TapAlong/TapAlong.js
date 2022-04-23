@@ -24,7 +24,7 @@ const getCyclicalArrayIndex = (count, arrayLength) => {
 
 const addNewCountDiv = ({ wrapperRef, beatCount, countingArray, animationDuration }) => {
   const newDiv = document.createElement("div");
-  const newIndex = getCyclicalArrayIndex(beatCount + 2, countingArray.length);
+  const newIndex = getCyclicalArrayIndex(beatCount, countingArray.length);
 
   newDiv.append(countingArray[newIndex]);
   newDiv.classList.add("beat-count", "next");
@@ -38,34 +38,37 @@ const addNewCountDiv = ({ wrapperRef, beatCount, countingArray, animationDuratio
 };
 
 const removeOldCountDiv = ({ wrapperRef, animationDuration }) => {
-  // not the first count
-  if (wrapperRef.current.children.length >= 2) {
-    const elemToRemove = wrapperRef.current.children[0];
+  const children = [...wrapperRef.current.children];
+  children.forEach((child) => {
+    if (child.classList.contains("prev")) {
+      child.classList.add("fade-out");
 
-    elemToRemove.classList.add("fade-out");
-
-    setTimeout(() => {
-      wrapperRef.current.removeChild(elemToRemove);
-    }, animationDuration);
-  }
+      setTimeout(() => {
+        child.remove();
+      }, animationDuration);
+    }
+  });
 };
 
 const shiftDivs = (wrapperRef) => {
   const children = [...wrapperRef.current.children];
 
   for (let i = 1; i < children.length; i++) {
-    if (children[i].classList.contains("shift-left")) {
-      children[i].classList.add("shift-left-twice");
-      children[i].classList.remove("shift-left");
-    } else {
-      children[i].classList.add("shift-left");
+    if (children[i].classList.contains("next")) {
+      children[i].classList.add("curr");
+      children[i].classList.remove("next");
+    } else if (children[i].classList.contains("curr")) {
+      children[i].classList.add("prev");
+      children[i].classList.remove("curr");
     }
   }
 };
 
 export default function TapAlong({
   width = 200,
-  color,
+  borderColor = "gray",
+  textColorMiss = "#aaa",
+  textColorHit = "#000",
   bpm = 60,
   countingString = "1;2;3;4",
   countingStringDelimiter = ";",
@@ -77,17 +80,16 @@ export default function TapAlong({
   const countingArray = countingString.split(countingStringDelimiter);
 
   useEffect(() => {
-    document.documentElement.style.setProperty("--tapalong-box-letter-spacing-pos", `${width}px`);
-    document.documentElement.style.setProperty("--tapalong-box-letter-spacing-neg", `-${width}px`);
+    const animationDuration = bpmToMilliseconds(bpm);
+    const animationDurationInSecs = `${animationDuration / 1000}s`;
+
+    document.documentElement.style.setProperty("--tapalong-box-letter-spacing", `${width}px`);
+    document.documentElement.style.setProperty("--tapalong-half-opacity", 0.3);
     document.documentElement.style.setProperty(
-      "--tapalong-box-letter-spacing-pos-twice",
-      `${width * 2}px`
+      "--tapalong-animation-duration",
+      animationDurationInSecs
     );
-    document.documentElement.style.setProperty(
-      "--tapalong-box-letter-spacing-neg-twice",
-      `-${width * 2}px`
-    );
-  }, [width]);
+  }, [width, bpm]);
 
   useEffect(() => {
     const animationDuration = bpmToMilliseconds(bpm);
@@ -105,7 +107,6 @@ export default function TapAlong({
     };
   }, [beatCount, countingArray, bpm]);
 
-  let borderColor = color || "gray";
   const borderStyle = { ...defaultBorderStyle, borderColor };
   const sizeStyle = { width: `${width}px`, height: `${width}px` };
 
@@ -129,12 +130,8 @@ export default function TapAlong({
         }}
         ref={wrapperRef}
       >
-        <div className="beat-count prev"></div>
-        <div className="beat-count current">
-          <h1 className="text-xl font-bold">{countingArray[0]}</h1>
-        </div>
         <div className="beat-count next">
-          <h1 className="text-xl font-bold">{countingArray[1]}</h1>
+          {/* <h1 className="text-xl font-bold">{countingArray[0]}</h1> */}
         </div>
       </div>
     </div>
