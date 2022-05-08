@@ -1,7 +1,7 @@
 // Styles for the tap along box
 
 import { css, cx } from "@emotion/css";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const defaultBorderStyle = {
   borderWidth: "12px",
@@ -65,31 +65,47 @@ const shiftDivs = (wrapperRef) => {
 };
 
 export default function TapAlong({
+  style,
   width = 200,
   borderColor = "gray",
-  textColorMiss = "#aaa",
-  textColorHit = "#000",
+  textOpacityMiss = "#aaa",
+  textOpacityHit = "#000",
   bpm = 60,
   countingString = "1;2;3;4",
   countingStringDelimiter = ";",
 }) {
+  const HALF_OPACITY = 0.1;
+
   const [beatCount, setBeatCount] = useState(0);
+  const [fullOpacity, setFullOpacity] = useState(HALF_OPACITY);
   const [correctTaps, setCorrectTaps] = useState(0);
   const wrapperRef = useRef(null);
 
   const countingArray = countingString.split(countingStringDelimiter);
 
-  useEffect(() => {
+  const setCSSVariables = useCallback(() => {
     const animationDuration = bpmToMilliseconds(bpm);
     const animationDurationInSecs = `${animationDuration / 1000}s`;
 
     document.documentElement.style.setProperty("--tapalong-box-letter-spacing", `${width}px`);
-    document.documentElement.style.setProperty("--tapalong-half-opacity", 0.3);
+    document.documentElement.style.setProperty("--tapalong-half-opacity", HALF_OPACITY);
+    document.documentElement.style.setProperty("--tapalong-full-opacity", fullOpacity);
     document.documentElement.style.setProperty(
       "--tapalong-animation-duration",
       animationDurationInSecs
     );
-  }, [width, bpm]);
+  }, [width, bpm, fullOpacity]);
+
+  useEffect(() => {
+    setCSSVariables();
+
+    document.addEventListener("keydown", (ev) => {
+      if (ev.key === " ") {
+        console.log("spacebar down");
+        document.documentElement.style.setProperty("--tapalong-full-opacity", 1);
+      }
+    });
+  }, [setCSSVariables]);
 
   useEffect(() => {
     const animationDuration = bpmToMilliseconds(bpm);
@@ -117,6 +133,7 @@ export default function TapAlong({
         ...borderStyle,
         ...centeringStyle,
         boxSizing: "content-box",
+        ...style,
       }}
     >
       <div
@@ -130,6 +147,7 @@ export default function TapAlong({
         }}
         ref={wrapperRef}
       >
+        {/* Do not delete this, please, I don't know why it's needed. :( */}
         <div className="beat-count next">
           {/* <h1 className="text-xl font-bold">{countingArray[0]}</h1> */}
         </div>
@@ -150,8 +168,13 @@ export default function TapAlong({
   + animate the numbers
     + fade out and fade in
     + shift once, shift twice
-    * fade in twice
-    * css vars for animation durations
+    + fade in twice
+    + css vars for animation durations
+    + style
+      + big text
+      * grey / black font
+      + blue border
+      * 
 * tolerance + scoring
   * pass in tolerance value
   * score tolerance value 

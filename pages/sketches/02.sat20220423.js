@@ -23,7 +23,13 @@ const songFile1Acoustic = "https://meyian-public-storage.s3.amazonaws.com/rich_g
 export default function Sat20220423() {
   return (
     <div>
-      <TagAlong width={200} />
+      <TagAlong
+        style={{ position: "relative", left: "300px" }}
+        width={200}
+        borderColor="#00aeef"
+        textOpacityHit="1"
+        textOpacityMiss="0.3"
+      />
     </div>
   );
 }
